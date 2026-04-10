@@ -53,6 +53,13 @@ Required environment variables:
 - Automatic memory refresh after user profile creation/update
 - Automatic deterministic memory refresh after saving a meal for a known user
 
+### Recommendation v1
+
+- Deterministic daily recommendation service built on top of existing profile, meal, stats, and memory data
+- Personalized calorie and protein target estimation based on user attributes and goal
+- Ranked suggestion output with overview, focus items, and explicit rationale
+- No extra LLM dependency required for base personalized recommendation output
+
 ## Current API Surface
 
 - `GET /health`
@@ -65,6 +72,7 @@ Required environment variables:
 - `GET /api/v1/memories?user_id=...`
 - `POST /api/v1/memories/refresh?user_id=...&use_llm=false`
 - `GET /api/v1/memories/manifest/{user_id}`
+- `GET /api/v1/recommendations/daily?user_id=...&date=YYYY-MM-DD`
 
 ## ClaudeCode-inspired Design Notes
 
@@ -96,3 +104,4 @@ Required environment variables:
 - Added SQLite user and meal persistence
 - Added memory v1 architecture and process log
 - Added automatic memory refresh wiring for user and meal flows
+- Added deterministic recommendation v1 using user profile, stats, meals, and active memories

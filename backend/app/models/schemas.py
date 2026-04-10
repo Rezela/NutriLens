@@ -111,3 +111,26 @@ class MemoryManifestResponse(BaseModel):
     user_id: str
     manifest_path: str
     manifest: str
+
+
+class RecommendationSuggestion(BaseModel):
+    category: str
+    priority: str
+    title: str
+    message: str
+    rationale: str
+
+
+class DailyRecommendationResponse(BaseModel):
+    user_id: str
+    date: str
+    goal: str | None = None
+    calorie_target: float
+    protein_target_g: float
+    total_calories: float
+    total_protein_g: float
+    meal_count: int
+    overview: str
+    focus: list[str] = Field(default_factory=list)
+    memory_signals: list[str] = Field(default_factory=list)
+    suggestions: list[RecommendationSuggestion] = Field(default_factory=list)
