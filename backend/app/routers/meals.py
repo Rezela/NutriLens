@@ -9,6 +9,7 @@ from app.models.schemas import DailyNutritionStats, MealAnalysisResponse, MealLo
 from app.repositories.meal_repository import create_meal_log, get_daily_stats, list_meals
 from app.repositories.user_repository import UserNotFoundError, get_user
 from app.services.gemini import GeminiServiceError, analyze_food_image
+from app.services.memory import refresh_user_memory
 
 router = APIRouter(prefix="/meals", tags=["meals"])
 
@@ -68,6 +69,8 @@ async def analyze_meal(
         }
         meal_record = create_meal_log(meal_payload)
         saved_meal_id = meal_record["id"]
+        if user_id:
+            await refresh_user_memory(user_id=user_id, use_llm=False)
 
     return {
         "analysis": analysis,

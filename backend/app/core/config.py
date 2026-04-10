@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-1.5-flash"
     database_url: str = "sqlite:///./storage/nutrilens.db"
     upload_dir: str = "storage/uploads"
+    memory_dir: str = "storage/memory"
+    memory_recent_meal_limit: int = 20
     allowed_origins: list[str] = ["*"]
 
     model_config = SettingsConfigDict(
@@ -40,6 +42,10 @@ class Settings(BaseSettings):
     @property
     def upload_path(self) -> Path:
         return Path(self.upload_dir)
+
+    @property
+    def memory_path(self) -> Path:
+        return Path(self.memory_dir)
 
 
 @lru_cache

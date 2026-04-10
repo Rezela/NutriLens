@@ -80,3 +80,34 @@ class DailyNutritionStats(BaseModel):
     total_carbs_g: float
     total_fat_g: float
     meal_count: int
+
+
+class MemoryRecordResponse(BaseModel):
+    id: str
+    user_id: str
+    memory_type: str
+    slug: str
+    title: str
+    summary: str
+    details: str | None = None
+    source_kind: str | None = None
+    confidence: str | None = None
+    is_active: bool
+    created_at: str
+    updated_at: str
+
+
+class MemoryRefreshResponse(BaseModel):
+    user_id: str
+    memory_count: int
+    archived_count: int
+    used_llm: bool
+    llm_error: str | None = None
+    manifest_path: str
+    memories: list[MemoryRecordResponse] = Field(default_factory=list)
+
+
+class MemoryManifestResponse(BaseModel):
+    user_id: str
+    manifest_path: str
+    manifest: str

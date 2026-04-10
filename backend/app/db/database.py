@@ -10,9 +10,11 @@ def ensure_storage() -> None:
     settings = get_settings()
     db_path = settings.database_path
     upload_path = settings.upload_path
+    memory_path = settings.memory_path
     if db_path.parent != Path("."):
         db_path.parent.mkdir(parents=True, exist_ok=True)
     upload_path.mkdir(parents=True, exist_ok=True)
+    memory_path.mkdir(parents=True, exist_ok=True)
 
 
 def init_db() -> None:
@@ -55,6 +57,23 @@ def init_db() -> None:
                 meal_time TEXT NOT NULL,
                 created_at TEXT NOT NULL,
                 FOREIGN KEY(user_id) REFERENCES users(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS memories (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                memory_type TEXT NOT NULL,
+                slug TEXT NOT NULL,
+                title TEXT NOT NULL,
+                summary TEXT NOT NULL,
+                details TEXT,
+                source_kind TEXT,
+                confidence TEXT,
+                is_active INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                FOREIGN KEY(user_id) REFERENCES users(id),
+                UNIQUE(user_id, memory_type, slug)
             );
             """
         )

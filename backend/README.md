@@ -1,6 +1,6 @@
 # NutriLens Backend
 
-A lightweight FastAPI backend for NutriLens. The first version uses the Gemini multimodal API to analyze food images and text, stores user profiles and meal logs in SQLite, and exposes simple nutrition tracking endpoints.
+A lightweight FastAPI backend for NutriLens. The first version uses the Gemini multimodal API to analyze food images and text, stores user profiles, meal logs, and memory records in SQLite, and exposes simple nutrition tracking endpoints.
 
 ## Setup
 
@@ -13,11 +13,25 @@ copy .env.example .env
 
 Set `GEMINI_API_KEY` in `.env`.
 
+Relevant configuration:
+
+- `GEMINI_API_KEY`
+- `GEMINI_MODEL`
+- `DATABASE_URL`
+- `UPLOAD_DIR`
+- `MEMORY_DIR`
+- `MEMORY_RECENT_MEAL_LIMIT`
+
 ## Run
 
 ```bash
 uvicorn app.main:app --reload
 ```
+
+## Development notes
+
+- Ongoing process log: `docs/process-log.md`
+- Memory snapshot export directory: `storage/memory/{user_id}/`
 
 ## Main endpoints
 
@@ -28,3 +42,15 @@ uvicorn app.main:app --reload
 - `POST /api/v1/meals/analyze`
 - `GET /api/v1/meals?user_id=...`
 - `GET /api/v1/meals/stats/daily?user_id=...&date=YYYY-MM-DD`
+- `GET /api/v1/memories?user_id=...`
+- `POST /api/v1/memories/refresh?user_id=...&use_llm=false`
+- `GET /api/v1/memories/manifest/{user_id}`
+
+## Memory v1
+
+Memory v1 is inspired by ClaudeCode's structured memory approach:
+
+- memory is stored as typed records instead of raw chat history
+- existing memory is refreshed rather than only appended to
+- each user gets a `MEMORY.md` manifest plus per-memory markdown files
+- the first implementation combines deterministic extraction with optional Gemini-assisted refinement

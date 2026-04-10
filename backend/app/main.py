@@ -7,6 +7,7 @@ from app.core.config import get_settings
 from app.db.database import init_db
 from app.routers.health import router as health_router
 from app.routers.meals import router as meals_router
+from app.routers.memories import router as memories_router
 from app.routers.users import router as users_router
 
 
@@ -28,3 +29,4 @@ app.add_middleware(
 app.include_router(health_router)
 app.include_router(users_router, prefix=settings.api_v1_prefix)
 app.include_router(meals_router, prefix=settings.api_v1_prefix)
+app.include_router(memories_router, prefix=settings.api_v1_prefix)
