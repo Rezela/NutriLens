@@ -4,13 +4,11 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-import httpx
-
 from app.core.config import get_settings
 from app.repositories.meal_repository import list_meals
 from app.repositories.memory_repository import archive_memory, list_memories, upsert_memory
 from app.repositories.user_repository import get_user
-from app.services.gemini import GeminiServiceError
+from app.services.gemini import GeminiServiceError, extract_response_text, generate_content
 
 MEMORY_TYPES = {"profile", "goal", "preference", "restriction", "pattern"}
 
@@ -224,27 +222,16 @@ def _build_llm_prompt(user: dict[str, Any], recent_meals: list[dict[str, Any]], 
 
 
 async def _extract_llm_memories(user: dict[str, Any], recent_meals: list[dict[str, Any]], existing_memories: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
-    settings = get_settings()
-    if not settings.gemini_api_key:
-        return [], []
-    endpoint = (
-        "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"{settings.gemini_model}:generateContent?key={settings.gemini_api_key}"
+    raw = await generate_content(
+        parts=[{"text": _build_llm_prompt(user, recent_meals, existing_memories)}],
+        temperature=0.1,
+        response_mime_type="application/json",
+        timeout=60,
     )
-    payload = {
-        "contents": [{"role": "user", "parts": [{"text": _build_llm_prompt(user, recent_meals, existing_memories)}]}],
-        "generationConfig": {"temperature": 0.1, "responseMimeType": "application/json"},
-    }
-    async with httpx.AsyncClient(timeout=60) as client:
-        response = await client.post(endpoint, json=payload)
-    if response.status_code >= 400:
-        raise GeminiServiceError(f"Gemini memory refresh failed: {response.status_code} {response.text}")
-    raw = response.json()
     candidates = raw.get("candidates") or []
     if not candidates:
         return [], []
-    parts = candidates[0].get("content", {}).get("parts", [])
-    text = "\n".join(part.get("text", "") for part in parts if isinstance(part, dict))
+    text = extract_response_text(raw)
     if not text:
         return [], []
     parsed = _extract_json(text)

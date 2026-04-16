@@ -3,3 +3,5 @@
 __pycache__/
 *.pyc
 storage/
+client_secret_*.json
+project-*.json

@@ -1,6 +1,6 @@
 # NutriLens Backend
 
-A lightweight FastAPI backend for NutriLens. The first version uses the Gemini multimodal API to analyze food images and text, stores user profiles, meal logs, and memory records in SQLite, and exposes simple nutrition tracking endpoints.
+A lightweight FastAPI backend for NutriLens. The current backend uses Vertex AI Gemini for multimodal meal analysis, stores user profiles, meal logs, and memory records in SQLite, and exposes simple nutrition tracking endpoints.
 
 ## Setup
 
@@ -11,16 +11,27 @@ pip install -r requirements.txt
 copy .env.example .env
 ```
 
-Set `GEMINI_API_KEY` in `.env`.
+Set your Google Cloud / Vertex AI configuration in `.env`.
 
 Relevant configuration:
 
-- `GEMINI_API_KEY`
 - `GEMINI_MODEL`
+- `GOOGLE_CLOUD_PROJECT`
+- `GOOGLE_CLOUD_LOCATION`
+- `GOOGLE_APPLICATION_CREDENTIALS`
 - `DATABASE_URL`
 - `UPLOAD_DIR`
 - `MEMORY_DIR`
 - `MEMORY_RECENT_MEAL_LIMIT`
+
+For local development with a service account JSON key:
+
+- place the key file outside version control
+- set `GOOGLE_APPLICATION_CREDENTIALS` to that JSON path
+- ensure Vertex AI is enabled for the target GCP project
+- set `GOOGLE_CLOUD_LOCATION=global` to use the Vertex AI global endpoint
+- set `GOOGLE_CLOUD_LOCATION=asia-east2` when you want to target the Hong Kong region explicitly
+- use `Invoke-RestMethod` or `curl.exe` to test HTTP endpoints on Windows PowerShell
 
 ## Run
 
@@ -28,14 +39,23 @@ Relevant configuration:
 uvicorn app.main:app --reload
 ```
 
+Example health checks on Windows PowerShell:
+
+```powershell
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/health"
+Invoke-RestMethod -Uri "http://127.0.0.1:8000/health/gemini"
+```
+
 ## Development notes
 
 - Ongoing process log: `docs/process-log.md`
 - Memory snapshot export directory: `storage/memory/{user_id}/`
+- Gemini auth mode: Vertex AI + service account credentials
 
 ## Main endpoints
 
 - `GET /health`
+- `GET /health/gemini`
 - `POST /api/v1/users`
 - `PUT /api/v1/users/{user_id}`
 - `GET /api/v1/users/{user_id}`

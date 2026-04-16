@@ -10,7 +10,7 @@
 
 - `FastAPI` for API layer
 - `SQLite` for MVP persistence
-- `Gemini API` for meal image analysis
+- `Vertex AI Gemini` for meal image analysis and optional LLM-backed memory refresh
 - `storage/uploads` for uploaded images
 - `storage/memory/{user_id}` for exported memory snapshot files
 
@@ -25,8 +25,10 @@ uvicorn app.main:app --reload
 
 Required environment variables:
 
-- `GEMINI_API_KEY`
 - `GEMINI_MODEL`
+- `GOOGLE_CLOUD_PROJECT`
+- `GOOGLE_CLOUD_LOCATION`
+- `GOOGLE_APPLICATION_CREDENTIALS`
 - `DATABASE_URL`
 - `UPLOAD_DIR`
 - `MEMORY_DIR`
@@ -42,6 +44,7 @@ Required environment variables:
 - Meal analysis endpoint
 - Meal log listing
 - Daily nutrition stats
+- Vertex AI service-account-based Gemini authentication
 
 ### Memory v1
 
@@ -63,6 +66,7 @@ Required environment variables:
 ## Current API Surface
 
 - `GET /health`
+- `GET /health/gemini`
 - `POST /api/v1/users`
 - `PUT /api/v1/users/{user_id}`
 - `GET /api/v1/users/{user_id}`
@@ -105,3 +109,4 @@ Required environment variables:
 - Added memory v1 architecture and process log
 - Added automatic memory refresh wiring for user and meal flows
 - Added deterministic recommendation v1 using user profile, stats, meals, and active memories
+- Switched backend Gemini authentication plan to Vertex AI + service account
