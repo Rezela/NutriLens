@@ -13,6 +13,7 @@
 - `Vertex AI Gemini` for meal image analysis and optional LLM-backed memory refresh
 - `storage/uploads` for uploaded images
 - `storage/memory/{user_id}` for exported memory snapshot files
+- `React + Vite` frontend consuming backend user, meal, stats, and recommendation endpoints for local integration testing
 
 ## Environment Setup
 
@@ -63,6 +64,18 @@ Required environment variables:
 - Ranked suggestion output with overview, focus items, and explicit rationale
 - No extra LLM dependency required for base personalized recommendation output
 
+### Frontend integration
+
+- Shared frontend API client in `frontend/src/lib/nutrilens.ts` for users, meal stats, meal logs, meal analysis, and daily recommendations
+- Onboarding now syncs the normalized local profile into backend user records and persists the returned `user_id`
+- Dashboard now reads backend daily stats, recent meal logs, and recommendation output instead of relying only on mock data
+- Dashboard summary now prefers backend recommendation calorie/protein targets when available to keep UI targets aligned with backend personalization
+- Dashboard information hierarchy now emphasizes `Today overview -> Next best actions -> Recently logged`, with promotional content pushed lower in the page
+- Macro cards now show explicit target values and bounded progress for faster scanning of daily nutrition status
+- Recommendation card now surfaces memory signals and suggestion rationale for clearer coaching context
+- Camera capture / gallery upload in the dashboard now calls the live meal analysis endpoint and refreshes dashboard state after save
+- Local integration flow validated with Vite on `http://localhost:8080` and FastAPI on `http://127.0.0.1:8000`
+
 ## Current API Surface
 
 - `GET /health`
@@ -88,9 +101,8 @@ Required environment variables:
 ## Current Todo
 
 - Improve memory extraction prompt quality and dedup behavior
-- Refresh memories automatically on user profile updates and meal saves
 - Add basic tests for memory repository and service
-- Add recommendation module based on user goal + meal patterns
+- Add frontend tests for onboarding sync, dashboard data loading, and meal analysis upload flows
 - Introduce nutrition database grounding instead of model-only estimates
 
 ## Open Questions
@@ -98,8 +110,19 @@ Required environment variables:
 - How much of memory refresh should be synchronous vs background?
 - Should meal analysis always trigger LLM memory refresh, or only deterministic refresh by default?
 - What memory taxonomy best fits nutrition coaching in later versions?
+- How much onboarding data should be moved from local-only calculation into backend-managed profile fields in the next iteration?
 
 ## Change Log
+
+### 2026-04-16
+
+- Integrated the React frontend onboarding flow with backend user creation/update
+- Wired dashboard daily stats, recent meals, and live meal image analysis to the FastAPI backend
+- Added frontend consumption of the deterministic daily recommendation endpoint in the dashboard
+- Aligned dashboard calorie/protein targets with backend recommendation output and exposed richer recommendation details in the UI
+- Reworked dashboard information architecture to prioritize daily overview, next actions, and recent logs over promotional content
+- Added frontend `.env.example` and README instructions for `VITE_API_BASE_URL` local API routing
+- Verified local frontend build after the new integration changes
 
 ### 2026-04-10
 
